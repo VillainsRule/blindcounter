@@ -1,0 +1,8 @@
+{
+    "name": "blindcounter",
+    "private": true,
+    "main": "src/server.ts",
+    "devDependencies": {
+        "@types/bun": "^1.3.1"
+    }
+}

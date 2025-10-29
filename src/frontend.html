@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>blindcounter</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
+
+        <style>
+            * {
+                font-family: 'Nunito';
+            }
+
+            body {
+                background: #000;
+                color: #fff;
+                min-height: 100vh;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            h1 {
+                text-align: center;
+                font-weight: 700;
+                font-size: 2.2rem;
+                margin-bottom: 1.5rem;
+                letter-spacing: 0.03em;
+                color: #fff;
+                text-shadow: 0 2px 16px #fff3, 0 0 2px #fff;
+            }
+
+            form {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                align-items: center;
+                margin-top: -10px;
+            }
+
+            input[type="text"] {
+                width: 200px;
+                padding: 0.8rem 1rem;
+                border: 1.5px solid #fff5;
+                border-radius: 0.7rem;
+                font-size: 1.1rem;
+                background: #111;
+                color: #fff;
+                outline: none;
+                transition: box-shadow 0.2s, border 0.2s;
+                box-shadow: 0 2px 16px #fff1;
+                text-align: center;
+            }
+
+            input[type="text"]:focus {
+                border: 1.5px solid #fff;
+                box-shadow: 0 0 8px 2px #fff6, 0 2px 16px #fff2;
+                background: #181818;
+            }
+
+            button {
+                padding: 0.8rem 2.2rem;
+                border: 1.5px solid #fff5;
+                border-radius: 0.7rem;
+                background: #fff;
+                color: #000;
+                font-size: 1.1rem;
+                font-weight: 700;
+                cursor: pointer;
+                transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s, transform 0.1s;
+                box-shadow: 0 2px 16px #fff2;
+                text-shadow: 0 1px 2px #fff8;
+            }
+
+            button:hover {
+                background: #000;
+                color: #fff;
+                border: 1.5px solid #fff;
+                box-shadow: 0 0 16px 2px #fff7;
+            }
+
+            .error {
+                color: #fff;
+                color: #ff2222;
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+                font-size: 1rem;
+                min-height: 1.2em;
+                text-align: center;
+                padding: 0.3em 1em;
+            }
+
+            .result {
+                font-size: 1.15rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.7em;
+                min-width: 0;
+                word-break: break-word;
+                color: rgb(10, 194, 10);
+                text-align: center;
+            }
+
+            ::selection {
+                background: #fff;
+                color: #000;
+            }
+
+            @media (max-width: 700px) {
+                form {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .result {
+                    font-size: 1rem;
+                    padding: 0.7rem 0.7rem;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div>
+            <h1>blindcounter</h1>
+            <form id="linkForm" autocomplete="off">
+                <input type="text" id="linkInput" placeholder="double counter link" required>
+                <input type="text" id="passwordInput" placeholder="instance password" required>
+                <button type="submit">Submit</button>
+            </form>
+            <div class="error" id="errorMsg"></div>
+            <div class="result" id="result" style="display:none;">
+                <span>the magic (appears to have) worked! you should be verified on discord within 30 seconds.</span>
+                <span>in the meantime, run the <b>/privacy</b> double counter command & ensure the invasive doogle &
+                    lens are set to <b>OFF!</b></span>
+            </div>
+        </div>
+
+        <script>
+            const form = document.getElementById('linkForm');
+            const linkInput = document.getElementById('linkInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultDiv = document.getElementById('result');
+
+            fetch('/api/isProtected').then(res => res.json()).then(data => {
+                if (!data.protected) {
+                    passwordInput.style.display = 'none';
+                    passwordInput.required = false;
+                }
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorMsg.textContent = '';
+                resultDiv.style.display = 'none';
+
+                try {
+                    const res = await fetch('/api/bypass', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            link: linkInput.value.trim(),
+                            password: passwordInput.value.trim()
+                        })
+                    });
+
+                    if (!res.ok) errorMsg.textContent = '✗ server error: ' + res.status;
+
+                    const data = await res.json();
+
+                    if (data.error) errorMsg.textContent = '✗ ' + data.error;
+                    else resultDiv.style.display = 'flex';
+                } catch (err) {
+                    errorMsg.textContent = 'failed to fetch result. Please try again.';
+                }
+            });
+        </script>
+    </body>
+
+</html>
