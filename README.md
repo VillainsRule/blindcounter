@@ -34,5 +34,7 @@ finally, open your browser to `http://localhost:6445` to access the web interfac
 
 obviously, if you can't tell, this doesn't have any special "bypass" and just makes bypassing double counter easier!
 
+demo video: https://files.catbox.moe/hendhn.mp4
+
 <br><br>
 <h5 align="center">made with ❤️ by villainsrule</h5>
