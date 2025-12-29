@@ -1,6 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+if (!process.env.RESI_PROXY)
+    throw new Error('RESI_PROXY environment variable is not set!');
+
+const isValid = await new Promise((r) => fetch('https://api.ipify.org', { proxy: process.env.RESI_PROXY }).then((b) => {
+    if (b.status === 200) r(true);
+    else r('RESI_PROXY failed verification, please ensure that it is valid! response code: ' + b.status);
+}).catch(() => r('Failed to verify RESI_PROXY, please ensure that it is valid!')));
+
+if (typeof isValid === 'string') throw isValid;
+
 const sendInvalid = (error: string) => new Response(JSON.stringify({ error }), { headers: { 'Content-Type': 'application/json' } });
 
 const IS_PROTECTED = !!process.env.PASSWORD;
