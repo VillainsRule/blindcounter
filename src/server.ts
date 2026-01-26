@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-if (!process.env.RESI_PROXY)
+if (!Bun.env.RESI_PROXY)
     throw new Error('RESI_PROXY environment variable is not set!');
 
 const isValid = await new Promise((r) => fetch('https://api.ipify.org', { proxy: process.env.RESI_PROXY }).then((b) => {
@@ -13,7 +13,7 @@ if (typeof isValid === 'string') throw isValid;
 
 const sendInvalid = (error: string) => new Response(JSON.stringify({ error }), { headers: { 'Content-Type': 'application/json' } });
 
-const IS_PROTECTED = !!process.env.PASSWORD;
+const IS_PROTECTED = !!Bun.env.PASSWORD;
 
 Bun.serve({
     port: 6445,
@@ -39,7 +39,7 @@ Bun.serve({
                 if (json.password !== process.env.PASSWORD) return sendInvalid('invalid password');
             }
 
-            const didWork = await new Promise((resolve) => {
+            const didWork = await new Promise<string | boolean>((resolve) => {
                 fetch(json.link, {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
@@ -52,7 +52,13 @@ Bun.serve({
                     if (html.includes('Success!')) resolve(true);
                     else {
                         fs.appendFileSync(path.join(import.meta.dirname, '..', 'fails.log'), `Failed to process link: ${json.link}\n\n--HTML START\n${html}\n--HTML END\n\n`);
-                        resolve(false);
+
+                        if (html.includes('Proxy Authentication Required')) resolve('contact the instance owner to add a new proxy.');
+                        else if (html.includes('Forbidden')) resolve('the proxy is forbidden from accessing the site, try again and then contact the instance owner if the issue persists.');
+                        else if (html.includes('You already have an account verified with Double Counter.')) resolve('this account has previously been flagged by double counter. use another account.');
+                        else if (html.includes('<!-- Expired link -->')) resolve('this double counter link has expired; request a new one.');
+                        else if (html.includes('<title>404 Not Found</title>')) resolve('this is not and was never a valid double counter link.');
+                        else resolve('unknown error occurred, contact the instance owner.');
                     }
                 }).catch((e) => {
                     fs.appendFileSync(path.join(import.meta.dirname, '..', 'fails.log'), `Failed to fetch link: ${json.link} (err: ${e.toString()}\n\n`);
@@ -61,7 +67,7 @@ Bun.serve({
             });
 
             if (didWork) return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-            else return sendInvalid('failed to process link');
+            else return new Response(JSON.stringify({ success: false, error: didWork === false ? 'failed to fetch link, contact the instance owner.' : didWork }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
 
         const html = fs.readFileSync(path.resolve(import.meta.dirname, 'frontend.html'), 'utf8');

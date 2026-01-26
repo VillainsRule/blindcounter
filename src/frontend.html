@@ -6,139 +6,273 @@
         <title>blindcounter</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <link href="https://fonts.googleapis.com/css?family=Nunito:400,700&display=swap" rel="stylesheet">
-
         <style>
             * {
-                font-family: 'Nunito';
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             body {
-                background: #000;
-                color: #fff;
+                color: #f5f5f7;
                 min-height: 100vh;
                 margin: 0;
                 display: flex;
-                flex-direction: column;
                 justify-content: center;
                 align-items: center;
+            }
+
+            .background {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: -1;
+                filter: brightness(0.9);
+            }
+
+            .window {
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.06);
+                width: 100%;
+                max-width: 420px;
+                overflow: hidden;
+            }
+
+            .window-header {
+                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-height: 28px;
+            }
+
+            .traffic-lights {
+                display: flex;
+                gap: 8px;
+            }
+
+            .traffic-light {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            .traffic-light.red {
+                background: #ed6158;
+            }
+
+            .traffic-light.yellow {
+                background: #fcc02e;
+            }
+
+            .traffic-light.green {
+                background: #5fc038;
+            }
+
+            .window-content {
+                padding: 0 24px;
+            }
+
+            .header-section {
+                text-align: center;
+                margin-bottom: 24px;
             }
 
             h1 {
-                text-align: center;
-                font-weight: 700;
-                font-size: 2.2rem;
-                margin-bottom: 1.5rem;
-                letter-spacing: 0.03em;
-                color: #fff;
-                text-shadow: 0 2px 16px #fff3, 0 0 2px #fff;
+                font-size: 22px;
+                font-weight: 600;
+                margin: 0 0 4px 0;
+                color: #f5f5f7;
+                letter-spacing: -0.015em;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                color: #ccccd3;
+                font-weight: 400;
             }
 
             form {
-                width: 100%;
                 display: flex;
-                justify-content: center;
-                gap: 1rem;
-                align-items: center;
-                margin-top: -10px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .input-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
             }
 
             input[type="text"] {
-                width: 200px;
-                padding: 0.8rem 1rem;
-                border: 1.5px solid #fff5;
-                border-radius: 0.7rem;
-                font-size: 1.1rem;
-                background: #111;
-                color: #fff;
+                padding: 8px 12px;
+                border: 1px solid #d2d2d7;
+                border-radius: 6px;
+                font-size: 13px;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
                 outline: none;
-                transition: box-shadow 0.2s, border 0.2s;
-                box-shadow: 0 2px 16px #fff1;
-                text-align: center;
+                transition: all 0.15s ease;
+                box-sizing: border-box;
+                font-weight: 400;
+            }
+
+            input[type="text"]::placeholder {
+                color: #a1a1a6;
             }
 
             input[type="text"]:focus {
-                border: 1.5px solid #fff;
-                box-shadow: 0 0 8px 2px #fff6, 0 2px 16px #fff2;
-                background: #181818;
+                border: 1px solid #0071e3;
+                box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.08);
+            }
+
+            .button-group {
+                display: flex;
+                gap: 12px;
             }
 
             button {
-                padding: 0.8rem 2.2rem;
-                border: 1.5px solid #fff5;
-                border-radius: 0.7rem;
-                background: #fff;
-                color: #000;
-                font-size: 1.1rem;
-                font-weight: 700;
+                flex: 1;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 6px;
+                background: #0071e3;
+                color: #ffffff;
+                font-size: 13px;
+                font-weight: 500;
                 cursor: pointer;
-                transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s, transform 0.1s;
-                box-shadow: 0 2px 16px #fff2;
-                text-shadow: 0 1px 2px #fff8;
+                transition: all 0.15s ease;
+                letter-spacing: -0.01em;
             }
 
             button:hover {
-                background: #000;
-                color: #fff;
-                border: 1.5px solid #fff;
-                box-shadow: 0 0 16px 2px #fff7;
+                background: #0077ed;
+            }
+
+            button:active {
+                background: #0060d0;
+                transform: scale(0.99);
+            }
+
+            .message-container {
+                margin-top: 12px;
+                padding-bottom: 24px;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
             }
 
             .error {
-                color: #fff;
-                color: #ff2222;
-                border-radius: 0.5rem;
-                margin-top: 0.5rem;
-                font-size: 1rem;
-                min-height: 1.2em;
+                color: #d70015;
+                border-radius: 6px;
+                font-size: 12px;
                 text-align: center;
-                padding: 0.3em 1em;
+                padding: 8px 12px;
+                background: rgba(215, 0, 21, 0.15);
+                border: 1px solid rgba(215, 0, 21, 0.3);
+                display: none;
+                width: 100%;
+                box-sizing: border-box;
+                line-height: 1.4;
+            }
+
+            .error.show {
+                display: block;
             }
 
             .result {
-                font-size: 1.15rem;
+                font-size: 12px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 0.7em;
-                min-width: 0;
-                word-break: break-word;
-                color: rgb(10, 194, 10);
+                gap: 8px;
+                color: #34c759;
                 text-align: center;
+                background: rgba(52, 199, 89, 0.15);
+                border: 1px solid rgba(52, 199, 89, 0.3);
+                border-radius: 6px;
+                padding: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                display: none;
+                font-weight: 500;
+                line-height: 1.5;
+            }
+
+            .result.show {
+                display: flex;
+            }
+
+            .result span {
+                line-height: 1.5;
+            }
+
+            .result b {
+                font-weight: 600;
             }
 
             ::selection {
-                background: #fff;
-                color: #000;
+                background: #0071e3;
+                color: #ffffff;
             }
 
-            @media (max-width: 700px) {
-                form {
-                    flex-direction: column;
-                    gap: 1rem;
+            @media (max-width: 500px) {
+                h1 {
+                    font-size: 18px;
                 }
 
-                .result {
-                    font-size: 1rem;
-                    padding: 0.7rem 0.7rem;
+                input[type="text"] {
+                    font-size: 16px;
+                    padding: 10px 12px;
                 }
             }
         </style>
     </head>
 
     <body>
-        <div>
-            <h1>blindcounter</h1>
-            <form id="linkForm" autocomplete="off">
-                <input type="text" id="linkInput" placeholder="double counter link" required>
-                <input type="text" id="passwordInput" placeholder="instance password" required>
-                <button type="submit">Submit</button>
-            </form>
-            <div class="error" id="errorMsg"></div>
-            <div class="result" id="result" style="display:none;">
-                <span>the magic (appears to have) worked! you should be verified on discord within 30 seconds.</span>
-                <span>in the meantime, run the <b>/privacy</b> double counter command & ensure the invasive doogle &
-                    lens are set to <b>OFF!</b></span>
+        <img class="background" src="https://512pixels.net/wp-content/uploads/2025/07/26-Tahoe-Day.jpg" />
+
+        <div class="window">
+            <div class="window-header">
+                <div class="traffic-lights">
+                    <div class="traffic-light red"></div>
+                    <div class="traffic-light yellow"></div>
+                    <div class="traffic-light green"></div>
+                </div>
+            </div>
+
+            <div class="window-content">
+                <div class="header-section">
+                    <h1>blindcounter</h1>
+                    <p class="subtitle">a modern doublecounter bypass.<br />updated with the look of macOS tahoe!</p>
+                </div>
+
+                <form id="linkForm" autocomplete="off">
+                    <div class="input-group">
+                        <input type="text" id="linkInput" placeholder="Double Counter Link" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="passwordInput" placeholder="Instance Password" required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit">Verify</button>
+                    </div>
+                </form>
+
+                <div class="message-container">
+                    <div class="error" id="errorMsg"></div>
+                    <div class="result" id="result">
+                        <span>✓ Verification successful! You should be verified on Discord within 30 seconds.</span>
+                        <span>Run the <b>/privacy</b> command and ensure doogle & lens are set to <b>OFF</b>.</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -146,12 +280,13 @@
             const form = document.getElementById('linkForm');
             const linkInput = document.getElementById('linkInput');
             const passwordInput = document.getElementById('passwordInput');
+            const passwordGroup = passwordInput.parentElement;
             const errorMsg = document.getElementById('errorMsg');
             const resultDiv = document.getElementById('result');
 
             fetch('/api/isProtected').then(res => res.json()).then(data => {
                 if (!data.protected) {
-                    passwordInput.style.display = 'none';
+                    passwordGroup.style.display = 'none';
                     passwordInput.required = false;
                 }
             });
@@ -159,7 +294,8 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 errorMsg.textContent = '';
-                resultDiv.style.display = 'none';
+                errorMsg.classList.remove('show');
+                resultDiv.classList.remove('show');
 
                 try {
                     const res = await fetch('/api/bypass', {
@@ -171,14 +307,21 @@
                         })
                     });
 
-                    if (!res.ok) errorMsg.textContent = '✗ server error: ' + res.status;
+                    if (!res.ok) {
+                        errorMsg.textContent = 'Server error: ' + res.status;
+                        errorMsg.classList.add('show');
+                        return;
+                    }
 
                     const data = await res.json();
 
-                    if (data.error) errorMsg.textContent = '✗ ' + data.error;
-                    else resultDiv.style.display = 'flex';
+                    if (data.error) {
+                        errorMsg.textContent = data.error;
+                        errorMsg.classList.add('show');
+                    } else resultDiv.classList.add('show');
                 } catch (err) {
-                    errorMsg.textContent = 'failed to fetch result. Please try again.';
+                    errorMsg.textContent = 'Failed to fetch result. Please try again.';
+                    errorMsg.classList.add('show');
                 }
             });
         </script>
